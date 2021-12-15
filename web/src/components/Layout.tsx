@@ -46,14 +46,14 @@ export const Layout: React.FC<LayoutProps> = ({ children, isFluid }) => {
             !JSONUserStorage.role ||
             !JSONUserStorage.token
           ) {
-            dispatch(userLogout());
-            clearInterval(interval);
+            // dispatch(userLogout());
+            // clearInterval(interval);
           }
         } else {
-          dispatch(userLogout());
-          clearInterval(interval);
+          // dispatch(userLogout());
+          // clearInterval(interval);
         }
-      }, 3000);
+      }, 10000);
     }
   }, [dispatch, user]);
 
