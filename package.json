@@ -1,0 +1,24 @@
+{
+  "name": "mapring-thesis-v2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "ecosystem.config.js",
+  "dependencies": {
+    "pm2": "^5.1.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "pm2 start ecosystem.config.js --env production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kritjenwit/mapring-thesis.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kritjenwit/mapring-thesis/issues"
+  },
+  "homepage": "https://github.com/kritjenwit/mapring-thesis#readme"
+}
