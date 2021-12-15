@@ -31,6 +31,7 @@ export const login = async (username: string, password: string) => {
       data: null,
     };
   } catch (err) {
+    console.error(err)
     return {
       status: false,
       code: 2002,

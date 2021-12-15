@@ -52,6 +52,7 @@ export const register = async (
       data: null,
     };
   } catch (err) {
+    console.error(err)
     return {
       status: false,
       code: 2002,
