@@ -1,0 +1,46 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "_moduleAliases": {
+    "foo": "dist"
+  },
+  "dependencies": {
+    "@types/bcrypt": "^5.0.0",
+    "bcrypt": "^5.0.1",
+    "concurrently": "^6.3.0",
+    "connect-redis": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.2",
+    "ioredis": "^4.27.7",
+    "jsonwebtoken": "^8.5.1",
+    "mysql": "^2.18.1",
+    "mysql2": "^2.3.0",
+    "pm2": "^5.1.2",
+    "redis": "^3.1.2",
+    "typescript": "^4.3.5"
+  },
+  "devDependencies": {
+    "@types/concurrently": "^6.3.0",
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.13",
+    "@types/express-session": "^1.17.4",
+    "@types/ioredis": "^4.26.7",
+    "@types/jsonwebtoken": "^8.5.5",
+    "@types/mysql": "^2.15.19",
+    "@types/node": "^16.4.13"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "tsc -w",
+    "dev": "nodemon dist/server.js",
+    "start": "node dist/server.js",
+    "build": "tsc --project tsconfig.json"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
