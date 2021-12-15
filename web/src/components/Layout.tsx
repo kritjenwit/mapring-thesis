@@ -34,11 +34,13 @@ export const Layout: React.FC<LayoutProps> = ({ children, isFluid }) => {
 
   useEffect(() => {
     let interval: NodeJS.Timer;
+    console.log(user)
     if (user.isLoggedIn) {
       interval = setInterval(() => {
         const userStorage = localStorage.getItem("user");
         if (userStorage) {
           const JSONUserStorage = JSON.parse(userStorage);
+          console.log(JSONUserStorage)
           if (
             !JSONUserStorage.username ||
             !JSONUserStorage.role ||
@@ -51,7 +53,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, isFluid }) => {
           dispatch(userLogout());
           clearInterval(interval);
         }
-      }, 1000);
+      }, 3000);
     }
   }, [dispatch, user]);
 
