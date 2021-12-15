@@ -1,9 +1,10 @@
 import type { PoolOptions } from "mysql2";
+import { environment } from "./environment";
 
 export const db = {
-  host: "192.168.1.50",
-  user: "root",
-  password: "142536",
-  database: "app",
-  port: 3300,
+  host: environment.DB_HOST,
+  user: environment.DB_USER,
+  password: environment.DB_PASS,
+  database: environment.DB_NAME,
+  port: environment.DB_PORT,
 } as PoolOptions;

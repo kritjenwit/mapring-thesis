@@ -5,8 +5,6 @@ module.exports = {
       cwd: "./web",
       script: "npm",
       args: "start",
-      instances: "max",
-      exec_mode: "cluster",
       exp_backoff_restart_delay: 0,
     },
     {
@@ -14,8 +12,6 @@ module.exports = {
       cwd: "./server",
       script: "npm",
       args: "start",
-      instances: "max",
-      exec_mode: "cluster",
       exp_backoff_restart_delay: 0,
     },
   ],
