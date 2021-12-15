@@ -8,7 +8,9 @@
   },
   "devDependencies": {},
   "scripts": {
-    "start": "pm2 start ecosystem.config.js --env production"
+    "start": "pm2 start ecosystem.config.js --env production",
+    "stop" : "pm2 stop all",
+    "delete" : "pm2 delete all"
   },
   "repository": {
     "type": "git",
