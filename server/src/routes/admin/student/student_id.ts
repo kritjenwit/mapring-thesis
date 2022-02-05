@@ -78,8 +78,8 @@ export const studentsIdHandler = async (req: Request, res: Response) => {
     studentSubject[subjectId] = resultGetStudentSubject[i];
   }
 
-  console.log(studentSubject);
-  console.log(resultGetSubjects);
+  // console.log(studentSubject);
+  // console.log(resultGetSubjects);
 
   let subjects = {};
   // @ts-ignore

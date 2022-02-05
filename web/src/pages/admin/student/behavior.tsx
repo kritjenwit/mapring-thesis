@@ -78,7 +78,6 @@ const behavior: React.FC<behaviorProps> = ({}) => {
                     academic_year: config.academicYear,
                     term: config.academicTerm,
                     class_type: 0,
-                    year: 0,
                     room: 0,
                   }}
                   onSubmit={async (values, { setSubmitting }) => {
@@ -109,32 +108,14 @@ const behavior: React.FC<behaviorProps> = ({}) => {
                                   <option>-</option>
                                   <BtDropdown
                                     config={config}
-                                    keyProp="classType"
+                                    keyProp="classTypeV2"
                                     id="id"
                                     name="name"
                                   />
                                 </BtForm.Select>
                               </BtForm.Group>
                             </Col>
-                            <Col lg={3} md={12} sm={12}>
-                              <BtForm.Group>
-                                <BtForm.Label>ปี</BtForm.Label>
-                                <BtForm.Select
-                                  aria-label="Default select example"
-                                  name="year"
-                                  size="sm"
-                                  onChange={handleChange}
-                                >
-                                  <option>-</option>
-                                  <BtDropdown
-                                    config={config}
-                                    keyProp="years"
-                                    id="id"
-                                    name="year"
-                                  />
-                                </BtForm.Select>
-                              </BtForm.Group>
-                            </Col>
+                            
                             <Col lg={3} md={12} sm={12}>
                               <BtForm.Group>
                                 <BtForm.Label>ห้อง</BtForm.Label>

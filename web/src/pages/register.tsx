@@ -103,8 +103,7 @@ const register: React.FC<registerProps> = ({}) => {
                               value={values.username}
                             />
                             <BtForm.Text className="text-muted">
-                              การตั้งชื่อผู้ใช้งาน(Username)
-                              ให้ใส่หมายเลขบัตรประจำตัวประชาชนของผู้ใช้งาน
+                              อีเมลหรือหมายเลขโทรศัพท์
                             </BtForm.Text>
                           </BtForm.Group>
                         </Col>
@@ -245,6 +244,25 @@ const register: React.FC<registerProps> = ({}) => {
                           </BtForm.Group>
                         </Col>
                       </Row> */}
+                      <Row style={{ marginTop: 10 }}>
+                        <Col sm="12" md="8" lg="6">
+                          <BtForm.Group>
+                            <BtForm.Label>
+                              โรงเรียน <small className="text-danger">*</small>
+                            </BtForm.Label>
+                            <BtForm.Select
+                              name="schoolCode"
+                              id="schoolCode"
+                              size="sm"
+                              value={values.schoolCode}
+                              aria-label="Default select example"
+                              onChange={handleChange}
+                            >
+                              <option value="1">A</option>
+                            </BtForm.Select>
+                          </BtForm.Group>
+                        </Col>
+                      </Row>
                       <Row style={{ marginTop: 10 }}>
                         <Col sm="12" md="8" lg="6">
                           <BtForm.Group>

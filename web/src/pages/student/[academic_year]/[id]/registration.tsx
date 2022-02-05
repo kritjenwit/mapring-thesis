@@ -1,9 +1,18 @@
+import { AxiosResponse } from "axios";
 import { Formik } from "formik";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { SSRProvider, Row, Col, Form as BtForm, Button } from "react-bootstrap";
+import {
+  SSRProvider,
+  Row,
+  Col,
+  Form as BtForm,
+  Button,
+  Alert,
+} from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../../app/store";
+import { BtDropdown } from "../../../../components/BtDropdown";
 import { Layout } from "../../../../components/Layout";
 import { StudentPortalSidebar } from "../../../../components/StudentPortalSidebar";
 import { setGlobalError } from "../../../../features/globalSlice";
@@ -19,9 +28,49 @@ const registration: React.FC<registrationProps> = ({}) => {
   const user = useSelector((state: RootState) => state.user);
   const [student, setStudent] = useState(null as null | any);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [houseAddressDistricts, setHouseAddressDistricts] = useState([]);
+  const [houseAddressSubDistricts, setHouseAddressSubDistricts] = useState([]);
+
+  const [currentAddressDistricts, setCurrentAddressDistricts] = useState([]);
+  const [currentAddressSubDistricts, setCurrentAddressSubDistricts] = useState(
+    []
+  );
+
+  const [selectedHouseAddressDistrict, setSelectedHouseAddressDistrict] =
+    useState("");
+  const [selectedHouseAddressSubDistrict, setSelectedHouseAddressSubDistrict] =
+    useState("");
+
+  const [selectedCurrentAddressDistrict, setSelectedCurrentAddressDistrict] =
+    useState("");
+  const [
+    selectedCurrentAddressSubDistrict,
+    setSelectedCurrentAddressSubDistrict,
+  ] = useState("");
 
   const academic_year = query.academic_year as string;
   const student_id = query.id as string;
+
+  const getDistrict = async (pcode: string | number) => {
+    const response = await axios.get("/api/app/district", {
+      params: { pcode: pcode },
+    });
+    const data = response.data as any;
+    return data;
+  };
+
+  const getSubDistrict = async (
+    pcode: string | number,
+    acode: string | number
+  ) => {
+    const response = await axios.get("/api/app/sub_district", {
+      params: { pcode: pcode, acode: acode },
+    });
+    const data = response.data as any;
+    return data;
+  };
 
   const getStudent = async (academic_year: string, student_id: string) => {
     let response = await axios.get(
@@ -60,7 +109,7 @@ const registration: React.FC<registrationProps> = ({}) => {
       }
     } else {
       dispatch(userLogout());
-      router.push(`/login?next=${router.route}`);
+      router.push(`/login?next=/admin/search`);
     }
   }, []);
 
@@ -69,12 +118,14 @@ const registration: React.FC<registrationProps> = ({}) => {
     const academic_year = query.academic_year as string;
     const student_id = query.id as string;
 
-    getStudent(academic_year, student_id);
+    if (academic_year && student_id) {
+      getStudent(academic_year, student_id);
+    }
   }, [router]);
   return (
     <SSRProvider>
       <Layout>
-        <Row>
+        <Row style={{ marginBottom: 20, marginTop: 10 }}>
           <Col lg={2} md={4} sm={0}>
             <StudentPortalSidebar
               academic_year={academic_year}
@@ -92,6 +143,25 @@ const registration: React.FC<registrationProps> = ({}) => {
                   student_id,
                   current_address: student.current_address,
                   house_address: student.house_address,
+
+                  house_address_no: student.house_address_no,
+                  house_address_moo: student.house_address_moo,
+                  house_address_road: student.house_address_road,
+                  house_address_province: student.house_address_province_id,
+                  house_address_district: student.house_address_district_id,
+                  house_address_sub_district:
+                    student.house_address_sub_district_id,
+                  house_address_postcode: student.house_address_postcode,
+
+                  current_address_no: student.current_address_no,
+                  current_address_moo: student.current_address_moo,
+                  current_address_road: student.current_address_road,
+                  current_address_province: student.current_address_province_id,
+                  current_address_district: student.current_address_district_id,
+                  current_address_sub_district:
+                    student.current_address_sub_district_id,
+                  current_address_postcode: student.current_address_postcode,
+
                   email: student.email,
                   phoneno: student.phoneno,
                   sleepness_id: student.sleepness_id,
@@ -106,32 +176,61 @@ const registration: React.FC<registrationProps> = ({}) => {
                   no_little_sis: student.no_little_sis,
                   student_rank: student.student_rank,
                   dad_idcard: student.dad_idcard,
+
+                  dad_card_type: student.dad_card_type_id,
+                  dad_name_title: student.dad_name_title_id,
+
                   dad_firstname: student.dad_firstname,
                   dad_lastname: student.dad_lastname,
                   dad_salary: student.dad_salary,
                   dad_phoneno: student.dad_phoneno,
                   mom_idcard: student.mom_idcard,
+
+                  mom_card_type: student.mom_card_type_id,
+                  mom_name_title: student.mom_name_title_id,
+
                   mom_firstname: student.mom_firstname,
                   mom_lastname: student.mom_lastname,
                   mom_salary: student.mom_salary,
                   mom_phoneno: student.mom_phoneno,
                 }}
                 onSubmit={async (values) => {
-                  let response = await axios.post(
-                    "/api/students/edit/registration",
-                    values,
-                    {
-                      headers: {
-                        token: user.user!.token,
-                      },
-                    }
-                  );
-                  getStudent(academic_year, student_id);
-                  setIsEditMode(!isEditMode)
+                  console.log(values);
+                  // try {
+                  //   let response = (await axios.post(
+                  //     "/api/students/edit/registration",
+                  //     values,
+                  //     {
+                  //       headers: {
+                  //         token: user.user!.token,
+                  //       },
+                  //     }
+                  //   )) as AxiosResponse<{
+                  //     code: number;
+                  //     message: string;
+                  //     data: any;
+                  //   }>;
+                  //   if (response.status !== 200) {
+                  //     setError("Server error");
+                  //   } else if (response.data.code !== 1101) {
+                  //     setError(response.data.message);
+                  //   } else {
+                  //     setSuccess(response.data.message);
+                  //   }
+                  // } catch (error: any) {
+                  //   setError(error.message);
+                  // }
+
+                  // getStudent(academic_year, student_id);
+                  // setIsEditMode(!isEditMode);
                 }}
               >
                 {({ values, handleChange, handleSubmit }) => (
                   <>
+                    {error ? <Alert variant="danger">{error}</Alert> : null}
+                    {success ? (
+                      <Alert variant="success">{success}</Alert>
+                    ) : null}
                     <Row style={{ marginTop: 10 }}>
                       <Col lg={4} md={6} sm={12}>
                         <BtForm.Group>
@@ -160,40 +259,347 @@ const registration: React.FC<registrationProps> = ({}) => {
                         </BtForm.Group>
                       </Col>
                     </Row>
+                    <hr />
+                    <h5>ที่อยู่ตามทะเบียนบ้าน</h5>
                     <Row style={{ marginTop: 10 }}>
-                      <Col lg={6} md={6} sm={12}>
+                      <Col lg={4} md={6} sm={12}>
                         <BtForm.Group>
-                          <BtForm.Label>ที่อยู่ปัจจุบัน</BtForm.Label>
+                          <BtForm.Label>บ้านเลขที่</BtForm.Label>
                           <BtForm.Control
-                            as="textarea"
-                            rows={5}
                             type="text"
-                            name="current_address"
-                            id="current_address"
+                            name="house_address_no"
+                            id="house_address_no"
                             size="sm"
                             disabled={!isEditMode}
-                            defaultValue={student.current_address}
+                            defaultValue={student.house_address_no}
                             onChange={handleChange}
                           />
                         </BtForm.Group>
                       </Col>
-                      <Col lg={6} md={6} sm={12}>
+                      <Col lg={4} md={6} sm={12}>
                         <BtForm.Group>
-                          <BtForm.Label>ที่อยู่ตามทะเบียนบ้าน</BtForm.Label>
+                          <BtForm.Label>หมู่</BtForm.Label>
                           <BtForm.Control
-                            as="textarea"
-                            rows={5}
                             type="text"
-                            name="house_address"
-                            id="house_address"
+                            name="house_address_moo"
+                            id="house_address_moo"
                             size="sm"
                             disabled={!isEditMode}
-                            defaultValue={student.house_address}
+                            defaultValue={student.house_address_moo}
                             onChange={handleChange}
                           />
                         </BtForm.Group>
+                      </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>ถนน</BtForm.Label>
+                          <BtForm.Control
+                            type="text"
+                            name="house_address_road"
+                            id="house_address_road"
+                            size="sm"
+                            disabled={!isEditMode}
+                            defaultValue={student.house_address_road}
+                            onChange={handleChange}
+                          />
+                        </BtForm.Group>
+                      </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>จังหวัด</BtForm.Label>
+                          <BtForm.Select
+                            aria-label="province"
+                            size="sm"
+                            defaultValue={student.house_address_province}
+                            disabled={!isEditMode}
+                            name="house_address_province"
+                            id="house_address_province"
+                            onChange={async (e) => {
+                              handleChange(e);
+                              // @ts-ignore
+                              let selectedValue = e.target.value;
+                              const district = await getDistrict(selectedValue);
+                              setHouseAddressDistricts(district);
+                              setSelectedHouseAddressDistrict(selectedValue);
+                              if (selectedHouseAddressSubDistrict) {
+                                const subDistrict = await getSubDistrict(
+                                  selectedValue,
+                                  selectedHouseAddressSubDistrict
+                                );
+                                setHouseAddressSubDistricts(subDistrict);
+                              }
+                            }}
+                          >
+                            <option value="-">--- โปรดระบุ ---</option>
+                            <BtDropdown
+                              config={config}
+                              keyProp="provinces"
+                              id="id"
+                              name="name"
+                            />
+                          </BtForm.Select>
+                        </BtForm.Group>
+                      </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group
+                          style={{
+                            display:
+                              houseAddressDistricts.length === 0 ? "none" : "",
+                          }}
+                        >
+                          <BtForm.Label>อำเภอ</BtForm.Label>
+                          <BtForm.Select
+                            aria-label="district"
+                            size="sm"
+                            defaultValue={student.house_address_district}
+                            disabled={houseAddressDistricts.length === 0}
+                            name="house_address_district"
+                            id="house_address_district"
+                            onChange={async (e) => {
+                              handleChange(e);
+                              // @ts-ignore
+                              let selectedValue = e.target.value;
+                              const subDistrict = await getSubDistrict(
+                                selectedHouseAddressDistrict,
+                                selectedValue
+                              );
+                              setHouseAddressSubDistricts(subDistrict);
+                              setSelectedHouseAddressSubDistrict(selectedValue);
+                            }}
+                          >
+                            <option value="-">--- โปรดระบุ ---</option>
+                            {houseAddressDistricts &&
+                            houseAddressDistricts.length > 0
+                              ? houseAddressDistricts.map(
+                                  (district: { id: string; name: string }) => (
+                                    <option value={district.id}>
+                                      {district.name}
+                                    </option>
+                                  )
+                                )
+                              : null}
+                          </BtForm.Select>
+                        </BtForm.Group>
+                      </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group
+                          style={{
+                            display:
+                              houseAddressSubDistricts.length === 0
+                                ? "none"
+                                : "",
+                          }}
+                        >
+                          <BtForm.Label>ตำบล</BtForm.Label>
+                          <BtForm.Select
+                            aria-label="sub_district"
+                            size="sm"
+                            defaultValue={student.house_address_sub_district}
+                            disabled={houseAddressSubDistricts.length === 0}
+                            name="house_address_sub_district"
+                            id="house_address_sub_district"
+                            onChange={handleChange}
+                          >
+                            <option value="-">--- โปรดระบุ ---</option>
+                            {houseAddressSubDistricts &&
+                            houseAddressSubDistricts.length > 0
+                              ? houseAddressSubDistricts.map(
+                                  (district: { id: string; name: string }) => (
+                                    <option value={district.id}>
+                                      {district.name}
+                                    </option>
+                                  )
+                                )
+                              : null}
+                          </BtForm.Select>
+                        </BtForm.Group>
+                      </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Label>รหัสไปรษณีย์</BtForm.Label>
+                        <BtForm.Control
+                          type="text"
+                          name="house_address_postcode"
+                          id="house_address_postcode"
+                          size="sm"
+                          disabled={!isEditMode}
+                          defaultValue={student.house_address_postcode}
+                          onChange={handleChange}
+                        />
                       </Col>
                     </Row>
+                    <hr />
+                    <h5>ที่อยู่ปัจจุบัน</h5>
+                    <Row style={{ marginTop: 10 }}>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>บ้านเลขที่</BtForm.Label>
+                          <BtForm.Control
+                            type="text"
+                            name="current_address_no"
+                            id="current_address_no"
+                            size="sm"
+                            disabled={!isEditMode}
+                            defaultValue={student.current_address_no}
+                            onChange={handleChange}
+                          />
+                        </BtForm.Group>
+                      </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>หมู่</BtForm.Label>
+                          <BtForm.Control
+                            type="text"
+                            name="current_address_moo"
+                            id="current_address_moo"
+                            size="sm"
+                            disabled={!isEditMode}
+                            defaultValue={student.current_address_moo}
+                            onChange={handleChange}
+                          />
+                        </BtForm.Group>
+                      </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>ถนน</BtForm.Label>
+                          <BtForm.Control
+                            type="text"
+                            name="current_address_road"
+                            id="current_address_road"
+                            size="sm"
+                            disabled={!isEditMode}
+                            defaultValue={student.current_address_road}
+                            onChange={handleChange}
+                          />
+                        </BtForm.Group>
+                      </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>จังหวัด</BtForm.Label>
+                          <BtForm.Select
+                            aria-label="province"
+                            size="sm"
+                            defaultValue={student.current_address_province}
+                            disabled={!isEditMode}
+                            name="current_address_province"
+                            id="current_address_province"
+                            onChange={async (e) => {
+                              handleChange(e);
+                              // @ts-ignore
+                              let selectedValue = e.target.value;
+                              const district = await getDistrict(selectedValue);
+                              setCurrentAddressDistricts(district);
+                              setSelectedCurrentAddressDistrict(selectedValue);
+                              if (selectedCurrentAddressSubDistrict) {
+                                const subDistrict = await getSubDistrict(
+                                  selectedValue,
+                                  selectedCurrentAddressSubDistrict
+                                );
+                                setCurrentAddressSubDistricts(subDistrict);
+                              }
+                            }}
+                          >
+                            <option value="-">--- โปรดระบุ ---</option>
+                            <BtDropdown
+                              config={config}
+                              keyProp="provinces"
+                              id="id"
+                              name="name"
+                            />
+                          </BtForm.Select>
+                        </BtForm.Group>
+                      </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group
+                          style={{
+                            display:
+                              currentAddressDistricts.length === 0
+                                ? "none"
+                                : "",
+                          }}
+                        >
+                          <BtForm.Label>อำเภอ</BtForm.Label>
+                          <BtForm.Select
+                            aria-label="district"
+                            size="sm"
+                            defaultValue={student.house_address_district}
+                            disabled={currentAddressDistricts.length === 0}
+                            name="house_address_district"
+                            id="house_address_district"
+                            onChange={async (e) => {
+                              handleChange(e);
+                              // @ts-ignore
+                              let selectedValue = e.target.value;
+                              const district = await getSubDistrict(
+                                selectedCurrentAddressDistrict,
+                                selectedValue
+                              );
+                              setCurrentAddressDistricts(district);
+                              setSelectedCurrentAddressSubDistrict(
+                                selectedValue
+                              );
+                            }}
+                          >
+                            <option value="-">--- โปรดระบุ ---</option>
+                            {currentAddressDistricts &&
+                            currentAddressDistricts.length > 0
+                              ? currentAddressDistricts.map(
+                                  (district: { id: string; name: string }) => (
+                                    <option value={district.id}>
+                                      {district.name}
+                                    </option>
+                                  )
+                                )
+                              : null}
+                          </BtForm.Select>
+                        </BtForm.Group>
+                      </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group
+                          style={{
+                            display:
+                              currentAddressSubDistricts.length === 0
+                                ? "none"
+                                : "",
+                          }}
+                        >
+                          <BtForm.Label>ตำบล</BtForm.Label>
+                          <BtForm.Select
+                            aria-label="sub_district"
+                            size="sm"
+                            defaultValue={student.house_address_sub_district}
+                            disabled={currentAddressSubDistricts.length === 0}
+                            name="house_address_sub_district"
+                            id="house_address_sub_district"
+                            onChange={handleChange}
+                          >
+                            <option value="-">--- โปรดระบุ ---</option>
+                            {currentAddressSubDistricts &&
+                            currentAddressSubDistricts.length > 0
+                              ? currentAddressSubDistricts.map(
+                                  (district: { id: string; name: string }) => (
+                                    <option value={district.id}>
+                                      {district.name}
+                                    </option>
+                                  )
+                                )
+                              : null}
+                          </BtForm.Select>
+                        </BtForm.Group>
+                      </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Label>รหัสไปรษณีย์</BtForm.Label>
+                        <BtForm.Control
+                          type="text"
+                          name="current_address_postcode"
+                          id="current_address_postcode"
+                          size="sm"
+                          disabled={!isEditMode}
+                          defaultValue={student.current_address_postcode}
+                          onChange={handleChange}
+                        />
+                      </Col>
+                    </Row>
+                    <hr />
                     <Row style={{ marginTop: 10 }}>
                       <Col lg={4} md={6} sm={12}>
                         <BtForm.Group>
@@ -224,7 +630,7 @@ const registration: React.FC<registrationProps> = ({}) => {
                         </BtForm.Group>
                       </Col>
                     </Row>
-                    <hr />
+
                     <Row style={{ marginTop: 10 }}>
                       <Col lg={4} md={6} sm={12}>
                         <BtForm.Group>
@@ -238,17 +644,12 @@ const registration: React.FC<registrationProps> = ({}) => {
                             id="sleepness_id"
                             onChange={handleChange}
                           >
-                            {config.dropdown &&
-                            config.dropdown.sleepness.length > 0
-                              ? config.dropdown.sleepness.map((sleepness) => (
-                                  <option
-                                    key={sleepness.id}
-                                    value={sleepness.id}
-                                  >
-                                    {sleepness.name}
-                                  </option>
-                                ))
-                              : null}
+                            <BtDropdown
+                              config={config}
+                              keyProp="sleepness"
+                              id="id"
+                              name="name"
+                            />
                           </BtForm.Select>
                         </BtForm.Group>
                       </Col>
@@ -264,17 +665,12 @@ const registration: React.FC<registrationProps> = ({}) => {
                             id="disability_id"
                             onChange={handleChange}
                           >
-                            {config.dropdown &&
-                            config.dropdown.disability.length > 0
-                              ? config.dropdown.disability.map((disability) => (
-                                  <option
-                                    key={disability.id}
-                                    value={disability.id}
-                                  >
-                                    {disability.name}
-                                  </option>
-                                ))
-                              : null}
+                            <BtDropdown
+                              config={config}
+                              keyProp="disability"
+                              id="id"
+                              name="name"
+                            />
                           </BtForm.Select>
                         </BtForm.Group>
                       </Col>
@@ -290,19 +686,12 @@ const registration: React.FC<registrationProps> = ({}) => {
                             id="disadvantaged_id"
                             onChange={handleChange}
                           >
-                            {config.dropdown &&
-                            config.dropdown.disadvantaged.length > 0
-                              ? config.dropdown.disadvantaged.map(
-                                  (disadvantaged) => (
-                                    <option
-                                      key={disadvantaged.id}
-                                      value={disadvantaged.id}
-                                    >
-                                      {disadvantaged.name}
-                                    </option>
-                                  )
-                                )
-                              : null}
+                            <BtDropdown
+                              config={config}
+                              keyProp="disadvantaged"
+                              id="id"
+                              name="name"
+                            />
                           </BtForm.Select>
                         </BtForm.Group>
                       </Col>
@@ -318,14 +707,12 @@ const registration: React.FC<registrationProps> = ({}) => {
                             id="journey_id"
                             onChange={handleChange}
                           >
-                            {config.dropdown &&
-                            config.dropdown.journey.length > 0
-                              ? config.dropdown.journey.map((journey) => (
-                                  <option key={journey.id} value={journey.id}>
-                                    {journey.name}
-                                  </option>
-                                ))
-                              : null}
+                            <BtDropdown
+                              config={config}
+                              keyProp="journey"
+                              id="id"
+                              name="name"
+                            />
                           </BtForm.Select>
                         </BtForm.Group>
                       </Col>
@@ -361,19 +748,12 @@ const registration: React.FC<registrationProps> = ({}) => {
                             id="mom_dad_status_id"
                             onChange={handleChange}
                           >
-                            {config.dropdown &&
-                            config.dropdown.momDadStatus.length > 0
-                              ? config.dropdown.momDadStatus.map(
-                                  (momDadStatus) => (
-                                    <option
-                                      key={momDadStatus.id}
-                                      value={momDadStatus.id}
-                                    >
-                                      {momDadStatus.name}
-                                    </option>
-                                  )
-                                )
-                              : null}
+                            <BtDropdown
+                              config={config}
+                              keyProp="momDadStatus"
+                              id="id"
+                              name="name"
+                            />
                           </BtForm.Select>
                         </BtForm.Group>
                       </Col>
@@ -471,6 +851,71 @@ const registration: React.FC<registrationProps> = ({}) => {
                           />
                         </BtForm.Group>
                       </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>ชนิดบัตร</BtForm.Label>
+                          <BtForm.Select
+                            aria-label="dad_card_type"
+                            size="sm"
+                            defaultValue={student.dad_card_type}
+                            disabled={!isEditMode}
+                            name="dad_card_type"
+                            id="dad_card_type"
+                            onChange={handleChange}
+                          >
+                            <BtDropdown
+                              config={config}
+                              keyProp="cardType"
+                              id="id"
+                              name="name"
+                            />
+                          </BtForm.Select>
+                        </BtForm.Group>
+                      </Col>
+                    </Row>
+                    <Row style={{ marginTop: 10 }}>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>คำนำหน้าชื่อ</BtForm.Label>
+                          <BtForm.Select
+                            aria-label="dad_name_title"
+                            size="sm"
+                            defaultValue={student.dad_name_title}
+                            disabled={!isEditMode}
+                            name="dad_name_title"
+                            id="dad_name_title"
+                            onChange={handleChange}
+                          >
+                            <BtDropdown
+                              config={config}
+                              keyProp="parentNameTitle"
+                              id="id"
+                              name="name"
+                            />
+                          </BtForm.Select>
+                        </BtForm.Group>
+                      </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>อาชีพ</BtForm.Label>
+                          <BtForm.Select
+                            aria-label="dad_job"
+                            size="sm"
+                            defaultValue={student.dad_job}
+                            disabled={!isEditMode}
+                            name="dad_job"
+                            id="dad_job"
+                            onChange={handleChange}
+                          >
+                            <BtDropdown
+                              config={config}
+                              keyProp="jobs"
+                              id="id"
+                              name="name"
+                            />
+                          </BtForm.Select>
+                        </BtForm.Group>
+                      </Col>
                     </Row>
                     <Row style={{ marginTop: 10 }}>
                       <Col lg={4} md={6} sm={12}>
@@ -553,6 +998,71 @@ const registration: React.FC<registrationProps> = ({}) => {
                           />
                         </BtForm.Group>
                       </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>ชนิดบัตร</BtForm.Label>
+                          <BtForm.Select
+                            aria-label="mom_card_type"
+                            size="sm"
+                            defaultValue={student.mom_card_type}
+                            disabled={!isEditMode}
+                            name="mom_card_type"
+                            id="mom_card_type"
+                            onChange={handleChange}
+                          >
+                            <BtDropdown
+                              config={config}
+                              keyProp="cardType"
+                              id="id"
+                              name="name"
+                            />
+                          </BtForm.Select>
+                        </BtForm.Group>
+                      </Col>
+                    </Row>
+                    <Row style={{ marginTop: 10 }}>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>คำนำหน้าชื่อ</BtForm.Label>
+                          <BtForm.Select
+                            aria-label="mom_name_title"
+                            size="sm"
+                            defaultValue={student.mom_name_title}
+                            disabled={!isEditMode}
+                            name="mom_name_title"
+                            id="mom_name_title"
+                            onChange={handleChange}
+                          >
+                            <BtDropdown
+                              config={config}
+                              keyProp="parentNameTitle"
+                              id="id"
+                              name="name"
+                            />
+                          </BtForm.Select>
+                        </BtForm.Group>
+                      </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>อาชีพ</BtForm.Label>
+                          <BtForm.Select
+                            aria-label="mom_job"
+                            size="sm"
+                            defaultValue={student.mom_job}
+                            disabled={!isEditMode}
+                            name="mom_job"
+                            id="mom_job"
+                            onChange={handleChange}
+                          >
+                            <BtDropdown
+                              config={config}
+                              keyProp="jobs"
+                              id="id"
+                              name="name"
+                            />
+                          </BtForm.Select>
+                        </BtForm.Group>
+                      </Col>
                     </Row>
                     <Row style={{ marginTop: 10 }}>
                       <Col lg={4} md={6} sm={12}>
@@ -613,6 +1123,177 @@ const registration: React.FC<registrationProps> = ({}) => {
                             defaultValue={student.mom_salary}
                             onChange={handleChange}
                           />
+                        </BtForm.Group>
+                      </Col>
+                    </Row>
+                    <hr />
+                    <h5>ข้อมูลผู้ปกครอง</h5>
+                    <Row style={{ marginTop: 10 }}>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>
+                            เลขประจำตัวประชาชนผู้ปกครอง (ถ้าไม่มีใส่ -)
+                          </BtForm.Label>
+                          <BtForm.Control
+                            type="text"
+                            name="guardian_idcard"
+                            id="guardian_idcard"
+                            size="sm"
+                            disabled={!isEditMode}
+                            defaultValue={student.guardian_idcard}
+                            onChange={handleChange}
+                          />
+                        </BtForm.Group>
+                      </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>ชนิดบัตร</BtForm.Label>
+                          <BtForm.Select
+                            aria-label="guardian_card_type"
+                            size="sm"
+                            defaultValue={student.guardian_card_type}
+                            disabled={!isEditMode}
+                            name="guardian_card_type"
+                            id="guardian_card_type"
+                            onChange={handleChange}
+                          >
+                            <BtDropdown
+                              config={config}
+                              keyProp="cardType"
+                              id="id"
+                              name="name"
+                            />
+                          </BtForm.Select>
+                        </BtForm.Group>
+                      </Col>
+                    </Row>
+                    <Row style={{ marginTop: 10 }}>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>คำนำหน้าชื่อ</BtForm.Label>
+                          <BtForm.Select
+                            aria-label="guardian_name_title"
+                            size="sm"
+                            defaultValue={student.guardian_name_title}
+                            disabled={!isEditMode}
+                            name="guardian_name_title"
+                            id="guardian_name_title"
+                            onChange={handleChange}
+                          >
+                            <BtDropdown
+                              config={config}
+                              keyProp="parentNameTitle"
+                              id="id"
+                              name="name"
+                            />
+                          </BtForm.Select>
+                        </BtForm.Group>
+                      </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>อาชีพ</BtForm.Label>
+                          <BtForm.Select
+                            aria-label="guardian_job"
+                            size="sm"
+                            defaultValue={student.guardian_job}
+                            disabled={!isEditMode}
+                            name="guardian_job"
+                            id="guardian_job"
+                            onChange={handleChange}
+                          >
+                            <BtDropdown
+                              config={config}
+                              keyProp="jobs"
+                              id="id"
+                              name="name"
+                            />
+                          </BtForm.Select>
+                        </BtForm.Group>
+                      </Col>
+                    </Row>
+                    <Row style={{ marginTop: 10 }}>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>ชื่อผู้ปกครอง</BtForm.Label>
+                          <BtForm.Control
+                            type="text"
+                            name="guardian_firstname"
+                            id="guardian_firstname"
+                            size="sm"
+                            disabled={!isEditMode}
+                            defaultValue={student.guardian_firstname}
+                            onChange={handleChange}
+                          />
+                        </BtForm.Group>
+                      </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>นามสกุลผู้ปกครอง</BtForm.Label>
+                          <BtForm.Control
+                            type="text"
+                            name="guardian_lastname"
+                            id="guardian_lastname"
+                            size="sm"
+                            disabled={!isEditMode}
+                            defaultValue={student.guardian_lastname}
+                            onChange={handleChange}
+                          />
+                        </BtForm.Group>
+                      </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>เบอร์โทรศัพท์ผู้ปกครอง</BtForm.Label>
+                          <BtForm.Control
+                            type="text"
+                            name="guardian_phoneno"
+                            id="guardian_phoneno"
+                            size="sm"
+                            disabled={!isEditMode}
+                            defaultValue={student.guardian_phoneno}
+                            onChange={handleChange}
+                          />
+                        </BtForm.Group>
+                      </Col>
+
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>
+                            รายได้ต่อเดือน(บาท)
+                            (ผู้ปกครองของเด็กด้อยโอกาสต้องใส่รายได้มากกว่า 0)
+                          </BtForm.Label>
+                          <BtForm.Control
+                            type="text"
+                            name="guardian_salary"
+                            id="guardian_salary"
+                            size="sm"
+                            disabled={!isEditMode}
+                            defaultValue={student.guardian_salary}
+                            onChange={handleChange}
+                          />
+                        </BtForm.Group>
+                      </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>
+                            ความเกี่ยวของผู้ปกครองกับนักเรียน
+                          </BtForm.Label>
+                          <BtForm.Select
+                            aria-label="guardian_type"
+                            size="sm"
+                            defaultValue={student.guardian_type}
+                            disabled={!isEditMode}
+                            name="guardian_type"
+                            id="guardian_type"
+                            onChange={handleChange}
+                          >
+                            <option value="">-</option>
+                            <BtDropdown
+                              config={config}
+                              keyProp="guardian"
+                              id="id"
+                              name="name"
+                            />
+                          </BtForm.Select>
                         </BtForm.Group>
                       </Col>
                     </Row>

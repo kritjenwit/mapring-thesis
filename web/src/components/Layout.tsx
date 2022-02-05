@@ -34,26 +34,24 @@ export const Layout: React.FC<LayoutProps> = ({ children, isFluid }) => {
 
   useEffect(() => {
     let interval: NodeJS.Timer;
-    console.log(user)
     if (user.isLoggedIn) {
       interval = setInterval(() => {
         const userStorage = localStorage.getItem("user");
         if (userStorage) {
           const JSONUserStorage = JSON.parse(userStorage);
-          console.log(JSONUserStorage)
           if (
             !JSONUserStorage.username ||
             !JSONUserStorage.role ||
             !JSONUserStorage.token
           ) {
-            // dispatch(userLogout());
-            // clearInterval(interval);
+            dispatch(userLogout());
+            clearInterval(interval);
           }
         } else {
-          // dispatch(userLogout());
-          // clearInterval(interval);
+          dispatch(userLogout());
+          clearInterval(interval);
         }
-      }, 10000);
+      }, 1000);
     }
   }, [dispatch, user]);
 

@@ -2,15 +2,17 @@ import React from "react";
 
 interface DropdownSubMenuProps {
   title: string;
+  id?: string,
 }
 
 export const DropdownSubMenu: React.FC<DropdownSubMenuProps> = ({
+  id,
   title,
   children,
 }) => {
   return (
     <>
-      <li>
+      <li id={id}>
         <a className="dropdown-item" style={{ cursor: "pointer" }}>
           {title} &raquo;
         </a>

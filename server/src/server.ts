@@ -24,6 +24,8 @@ import { studentsEditAcademicEvaluateHandler } from "./routes/admin/student/edit
 import { studentsEditAcademicHouseHandler } from "./routes/admin/student/edit/academic/house";
 import { studentsEditAcademicNatureHandler } from "./routes/admin/student/edit/academic/nature";
 import { studentsAddInfoHandler } from "./routes/admin/student/add";
+import { getDistrict } from "./routes/app/get_district";
+import { getSubDistrict } from "./routes/app/get_sub_district";
 
 const app = express();
 const port = 4000;
@@ -55,6 +57,10 @@ const initHandler = () => {
   app.get("/api/roomlist/:year", getRoomListHandler);
 
   app.get("/api/app/config", studentsConfigHandler);
+  app.get("/api/app/district", getDistrict);
+  app.get("/api/app/sub_district", getSubDistrict);
+
+
   app.post("/api/students/edit/info", studentsEditInfoHandler);
   app.post("/api/students/add", studentsAddInfoHandler);
   app.post("/api/students/edit/registration", studentsEditRegistrationHandler);

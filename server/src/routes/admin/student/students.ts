@@ -64,22 +64,22 @@ export const studentsHandler = async (req: Request, res: Response) => {
   let data = {};
 
   const queryString = req.query;
-  const { academic_year, term, classType, year, room } =
+  const { academic_year, term, class_type, room } =
     queryString as unknown as {
       academic_year: number;
       term: number;
-      classType: number;
-      year: number;
+      class_type: number;
       room: number;
     };
 
   data = {
     academic_year: academic_year,
     term: term,
-    class_type: classType,
-    year: year,
+    class_type: class_type,
     room: room,
   };
+
+  console.log(JSON.stringify(data));
 
   const [resultGetStudents, resultGetSubject, resultGetManners] = await Promise.all([
     getStudents(data),

@@ -1,9 +1,18 @@
+import { AxiosResponse } from "axios";
 import { Formik } from "formik";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { SSRProvider, Row, Col, Form as BtForm, Button } from "react-bootstrap";
+import {
+  SSRProvider,
+  Row,
+  Col,
+  Form as BtForm,
+  Button,
+  Alert,
+} from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../../app/store";
+import { BtDropdown } from "../../../../components/BtDropdown";
 import { Layout } from "../../../../components/Layout";
 import { StudentPortalSidebar } from "../../../../components/StudentPortalSidebar";
 import { setGlobalError } from "../../../../features/globalSlice";
@@ -17,6 +26,8 @@ const registration: React.FC<registrationProps> = ({}) => {
   const query = router.query;
   const [student, setStudent] = useState(null as null | any);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const academic_year = query.academic_year as string;
   const student_id = query.id as string;
@@ -61,7 +72,7 @@ const registration: React.FC<registrationProps> = ({}) => {
       }
     } else {
       dispatch(userLogout());
-      router.push(`/login?next=${router.route}`);
+      router.push(`/login?next=/admin/search`);
     }
   }, []);
 
@@ -104,23 +115,50 @@ const registration: React.FC<registrationProps> = ({}) => {
                   nationality_id: student.nationality_id,
                   race_id: student.race_id,
                   religion_id: student.religion_id,
+                  bloodType: student.blood_type_id,
+                  cardType: student.idcard_type,
+                  studentJoinType: student.join_type_id,
+                  classTypeV2: student.class_type_id_v2,
+                  idcard: student.idcard,
+                  room: student.room
                 }}
                 onSubmit={async (values) => {
-                  let response = await axios.post(
-                    "/api/students/edit/info",
-                    values,
-                    {
-                      headers: {
-                        token: user.user!.token,
-                      },
+                  // console.log(values)
+                  try {
+                    let response = (await axios.post(
+                      "/api/students/edit/info",
+                      values,
+                      {
+                        headers: {
+                          token: user.user!.token,
+                        },
+                      }
+                    )) as AxiosResponse<{
+                      code: number;
+                      message: string;
+                      data: any;
+                    }>;
+                    if (response.status !== 200) {
+                      setError("Server error");
+                    } else if (response.data.code !== 1101) {
+                      setError(response.data.message);
+                    } else {
+                      setSuccess(response.data.message);
                     }
-                  );
+                  } catch (error: any) {
+                    setError(error.message);
+                  }
+
                   getStudent(academic_year, student_id);
-                  setIsEditMode(!isEditMode)
+                  setIsEditMode(!isEditMode);
                 }}
               >
                 {({ values, handleChange, handleSubmit }) => (
                   <>
+                    {error ? <Alert variant="danger">{error}</Alert> : null}
+                    {success ? (
+                      <Alert variant="success">{success}</Alert>
+                    ) : null}
                     <Row style={{ marginTop: 10 }}>
                       <Col lg={4} md={6} sm={12}>
                         <BtForm.Group>
@@ -149,19 +187,27 @@ const registration: React.FC<registrationProps> = ({}) => {
                         </BtForm.Group>
                       </Col>
                     </Row>
-
+                    <hr />
                     <Row style={{ marginTop: 10 }}>
                       <Col lg={4} md={6} sm={12}>
                         <BtForm.Group>
-                          <BtForm.Label>ชั้น</BtForm.Label>
-                          <BtForm.Control
-                            type="text"
-                            name="year"
-                            id="year"
+                          <BtForm.Label>ชนิดบัตร</BtForm.Label>
+                          <BtForm.Select
+                            aria-label="classTypeV2"
+                            name="classTypeV2"
+                            id="classTypeV2"
                             size="sm"
-                            disabled
-                            defaultValue={`${student.class_type_name} ${student.year}`}
-                          />
+                            disabled={!isEditMode}
+                            defaultValue={student.class_type_id_v2}
+                            onChange={handleChange}
+                          >
+                            <BtDropdown
+                              config={config}
+                              keyProp="classTypeV2"
+                              id="id"
+                              name="name"
+                            />
+                          </BtForm.Select>
                         </BtForm.Group>
                       </Col>
                       <Col lg={4} md={6} sm={12}>
@@ -172,13 +218,72 @@ const registration: React.FC<registrationProps> = ({}) => {
                             name="room"
                             id="room"
                             size="sm"
-                            disabled
-                            defaultValue={1}
+                            disabled={!isEditMode}
+                            defaultValue={student.room}
+                            onChange={handleChange}
                           />
                         </BtForm.Group>
                       </Col>
                     </Row>
-                    <hr />
+                    {/* <hr /> */}
+                    <Row style={{ marginTop: 10 }}>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>เลขประจำตัวประชาชน</BtForm.Label>
+                          <BtForm.Control
+                            type="text"
+                            name="idcard"
+                            id="idcard"
+                            size="sm"
+                            disabled={!isEditMode}
+                            defaultValue={student.idcard}
+                            onChange={handleChange}
+                          />
+                        </BtForm.Group>
+                      </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>ชนิดบัตร</BtForm.Label>
+                          <BtForm.Select
+                            aria-label="cardType"
+                            name="cardType"
+                            id="cardType"
+                            size="sm"
+                            disabled={!isEditMode}
+                            defaultValue={student.idcard_type}
+                            onChange={handleChange}
+                          >
+                            <BtDropdown
+                              config={config}
+                              keyProp="cardType"
+                              id="id"
+                              name="name"
+                            />
+                          </BtForm.Select>
+                        </BtForm.Group>
+                      </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>ประเภทนักเรียน</BtForm.Label>
+                          <BtForm.Select
+                            aria-label="studentJoinType"
+                            name="studentJoinType"
+                            id="studentJoinType"
+                            size="sm"
+                            disabled={!isEditMode}
+                            defaultValue={student.join_type_id}
+                            onChange={handleChange}
+                          >
+                            <BtDropdown
+                              config={config}
+                              keyProp="studentJoinType"
+                              id="id"
+                              name="name"
+                            />
+                          </BtForm.Select>
+                        </BtForm.Group>
+                      </Col>
+                    </Row>
                     <Row style={{ marginTop: 10 }}>
                       <Col lg={4} md={6} sm={12}>
                         <BtForm.Group>
@@ -192,17 +297,12 @@ const registration: React.FC<registrationProps> = ({}) => {
                             defaultValue={student.nameTitle_id}
                             onChange={handleChange}
                           >
-                            {config.dropdown &&
-                            config.dropdown.nameTitle.length > 0
-                              ? config.dropdown.nameTitle.map((nameTitle) => (
-                                  <option
-                                    key={nameTitle.id}
-                                    value={nameTitle.id}
-                                  >
-                                    {nameTitle.name}
-                                  </option>
-                                ))
-                              : null}
+                            <BtDropdown
+                              config={config}
+                              keyProp="nameTitle"
+                              id="id"
+                              name="name"
+                            />
                           </BtForm.Select>
                         </BtForm.Group>
                       </Col>
@@ -218,14 +318,33 @@ const registration: React.FC<registrationProps> = ({}) => {
                             defaultValue={student.gender_id}
                             onChange={handleChange}
                           >
-                            {config.dropdown &&
-                            config.dropdown.gender.length > 0
-                              ? config.dropdown.gender.map((gender) => (
-                                  <option key={gender.id} value={gender.id}>
-                                    {gender.name}
-                                  </option>
-                                ))
-                              : null}
+                            <BtDropdown
+                              config={config}
+                              keyProp="gender"
+                              id="id"
+                              name="name"
+                            />
+                          </BtForm.Select>
+                        </BtForm.Group>
+                      </Col>
+                      <Col lg={4} md={6} sm={12}>
+                        <BtForm.Group>
+                          <BtForm.Label>กรุ๊บเลือด</BtForm.Label>
+                          <BtForm.Select
+                            aria-label="bloodType"
+                            name="bloodType"
+                            id="bloodType"
+                            size="sm"
+                            disabled={!isEditMode}
+                            defaultValue={student.blood_type_id}
+                            onChange={handleChange}
+                          >
+                            <BtDropdown
+                              config={config}
+                              keyProp="bloodType"
+                              id="id"
+                              name="name"
+                            />
                           </BtForm.Select>
                         </BtForm.Group>
                       </Col>
@@ -306,7 +425,7 @@ const registration: React.FC<registrationProps> = ({}) => {
                         </BtForm.Group>
                       </Col>
                     </Row>
-                    <hr />
+                    {/* <hr /> */}
                     <Row style={{ marginTop: 10 }}>
                       <Col lg={4} md={6} sm={12}>
                         <BtForm.Group>
@@ -320,19 +439,12 @@ const registration: React.FC<registrationProps> = ({}) => {
                             defaultValue={student.nationality_id}
                             onChange={handleChange}
                           >
-                            {config.dropdown &&
-                            config.dropdown.nationality.length > 0
-                              ? config.dropdown.nationality.map(
-                                  (nationality) => (
-                                    <option
-                                      key={nationality.id}
-                                      value={nationality.id}
-                                    >
-                                      {nationality.name}
-                                    </option>
-                                  )
-                                )
-                              : null}
+                            <BtDropdown
+                              config={config}
+                              keyProp="nationality"
+                              id="id"
+                              name="name"
+                            />
                           </BtForm.Select>
                         </BtForm.Group>
                       </Col>
@@ -348,13 +460,12 @@ const registration: React.FC<registrationProps> = ({}) => {
                             defaultValue={student.race_id}
                             onChange={handleChange}
                           >
-                            {config.dropdown && config.dropdown.races.length > 0
-                              ? config.dropdown.races.map((races) => (
-                                  <option key={races.id} value={races.id}>
-                                    {races.name}
-                                  </option>
-                                ))
-                              : null}
+                            <BtDropdown
+                              config={config}
+                              keyProp="races"
+                              id="id"
+                              name="name"
+                            />
                           </BtForm.Select>
                         </BtForm.Group>
                       </Col>
@@ -370,14 +481,12 @@ const registration: React.FC<registrationProps> = ({}) => {
                             defaultValue={student.religion_id}
                             onChange={handleChange}
                           >
-                            {config.dropdown &&
-                            config.dropdown.religion.length > 0
-                              ? config.dropdown.religion.map((religion) => (
-                                  <option key={religion.id} value={religion.id}>
-                                    {religion.name}
-                                  </option>
-                                ))
-                              : null}
+                            <BtDropdown
+                              config={config}
+                              keyProp="religion"
+                              id="id"
+                              name="name"
+                            />
                           </BtForm.Select>
                         </BtForm.Group>
                       </Col>

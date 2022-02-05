@@ -14,7 +14,7 @@ import { useRouter } from "next/router";
 import { Layout } from "../components/Layout";
 import { RootState } from "../app/store";
 import { userLogin } from "../features/userSlice";
-import { isServer } from "../utils/isServer";
+import NextLink from "next/link"
 
 interface loginProps {}
 
@@ -36,9 +36,9 @@ const login: React.FC<loginProps> = ({}) => {
     <SSRProvider>
       <Layout>
         <Row className="justify-content-md-center">
-          <Col lg="6" md="6" xs="8">
-            <Card style={{ marginTop: 20 }}>
-              <Card.Header>เข้าสู่ระบบ</Card.Header>
+          <Col lg="4" md="6" xs="8">
+            <Card style={{ marginTop: "14vh" }}>
+              {/* <Card.Header>เข้าสู่ระบบ</Card.Header> */}
               <Card.Body>
                 <Formik
                   initialValues={{
@@ -74,49 +74,72 @@ const login: React.FC<loginProps> = ({}) => {
                       <Row style={{ marginTop: 10 }}>
                         <Col>
                           <BtForm.Group>
-                            <BtForm.Label>
+                            {/* <BtForm.Label>
                               ชื่อผู้ใช้งาน (Username){" "}
                               <small className="text-danger">*</small>
-                            </BtForm.Label>
+                            </BtForm.Label> */}
                             <BtForm.Control
                               type="text"
                               name="username"
                               id="username"
-                              size="sm"
                               onChange={handleChange}
                               value={values.username}
+                              placeholder="อีเมลหรือหมายเลขโทรศัพท์"
                             />
                           </BtForm.Group>
                         </Col>
                       </Row>
-                      <Row style={{ marginTop: 10 }}>
+                      <Row style={{ marginTop: 20 }}>
                         <Col>
                           <BtForm.Group>
-                            <BtForm.Label>
+                            {/* <BtForm.Label>
                               รหัสผ่าน <small className="text-danger">*</small>
-                            </BtForm.Label>
+                            </BtForm.Label> */}
                             <BtForm.Control
                               type="password"
                               name="password"
                               id="password"
-                              size="sm"
                               onChange={handleChange}
                               value={values.password}
+                              placeholder="รหัสผ่าน"
                             />
                           </BtForm.Group>
                         </Col>
                       </Row>
-                      <Row style={{ marginTop: 10 }}>
+                      <Row style={{ marginTop: 20 }}>
                         <Col>
                           <BtForm.Group>
-                            <Button
-                              variant="success"
-                              size="sm"
-                              disabled={isSubmitting}
-                              type="submit"
-                            >
-                              {isSubmitting ? "Loading…" : "เข้าสู่ระบบ"}
-                            </Button>
+                            <div className="d-grid gap-2">
+                              <Button
+                                variant="primary"
+                                size="lg"
+                                disabled={isSubmitting}
+                                type="submit"
+                                className={"btn-block"}
+                              >
+                                {isSubmitting ? "Loading…" : "เข้าสู่ระบบ"}
+                              </Button>
+                            </div>
+                          </BtForm.Group>
+                        </Col>
+                      </Row>
+                      <hr />
+                      <Row
+                        style={{ marginTop: 20 }}
+                        className="justify-content-md-center"
+                      >
+                        <Col lg={6} md={8} sm={12}>
+                          <BtForm.Group>
+                            <div className="d-grid gap-2">
+                              <NextLink href="/register">
+                                <a
+                                  className={"btn btn-success"}
+                                  href="/register"
+                                >
+                                  สร้างบัญชีใหม่
+                                </a>
+                              </NextLink>
+                            </div>
                           </BtForm.Group>
                         </Col>
                       </Row>

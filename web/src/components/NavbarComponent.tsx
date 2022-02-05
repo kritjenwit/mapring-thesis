@@ -38,37 +38,39 @@ const AdminLoginRightMenuComponent = (user: UserState, navbar: NavbarState) => {
             ข้อมูลลงทะเบียน
           </NavDropdown.Item>
         </NextLink>
-
-        {/* <NextLink href="/admin/class_administrative">
-          <NavDropdown.Item href="/admin/class_administrative">
-            งานธุรการชั้นเรียน
-          </NavDropdown.Item>
-        </NextLink> */}
       </NavDropdown>
 
-      <NavDropdown title="ข้อมูลนักเรียน" id="collasible-nav-dropdown">
-        <NextLink href="/admin">
-          <NavDropdown.Item href="/admin">ค้นหานักเรียน</NavDropdown.Item>
-        </NextLink>
-        <NextLink href="/admin/student/add">
-          <NavDropdown.Item href="/admin/student/add">เพิ่มข้อมูล</NavDropdown.Item>
-        </NextLink>
-      </NavDropdown>
+      <NextLink href="/">
+        <Nav.Link href="/">หน้าแรก</Nav.Link>
+      </NextLink>
+
+      <NextLink href="/admin/search">
+        <Nav.Link href="/admin/search">ค้นหา</Nav.Link>
+      </NextLink>
 
       <NavDropdown title="งานธุรการชั้นเรียน">
-        {/* <NextLink href="/admin/student/registration">
-          <NavDropdown.Item href="/admin/student/registration">
-            ด้านทะเบียน
-          </NavDropdown.Item>
-        </NextLink> */}
-        {/* <NextLink href="/admin">
-          <NavDropdown.Item href="/admin">ค้นหานักเรียน</NavDropdown.Item>
-        </NextLink> */}
-        {/* <NextLink href="/admin/student/academic">
-          <NavDropdown.Item href="/admin/student/academic">
-            ด้านวิชาการ
-          </NavDropdown.Item>
-        </NextLink> */}
+        <DropdownSubMenu title="ด้านประวัติทะเบียนนักเรียน">
+          <NextLink href="/admin/student/info/basic">
+            <NavDropdown.Item href="/admin/student/info/basic">
+              ข้อมูลเบื้องต้น
+            </NavDropdown.Item>
+          </NextLink>
+          <NextLink href="/admin/student/info/address">
+            <NavDropdown.Item href="/admin/student/info/address">
+              ที่อยู่และการติดต่อ
+            </NavDropdown.Item>
+          </NextLink>
+          <NextLink href="/admin/student/info/advance">
+            <NavDropdown.Item href="/admin/student/info/advance">
+              รายละเอียดนักเรียน
+            </NavDropdown.Item>
+          </NextLink>
+          <NextLink href="/admin/student/info/family">
+            <NavDropdown.Item href="/admin/student/info/family">
+              ครอบครัว
+            </NavDropdown.Item>
+          </NextLink>
+        </DropdownSubMenu>
         <DropdownSubMenu title={"ด้านวิชาการ"}>
           <NextLink href="/admin/student/academic/transcript">
             <NavDropdown.Item href="/admin/student/academic/transcript">
@@ -93,18 +95,23 @@ const AdminLoginRightMenuComponent = (user: UserState, navbar: NavbarState) => {
         </DropdownSubMenu>
         <NextLink href="/admin/student/behavior">
           <NavDropdown.Item href="/admin/student/behavior">
-            ด้านพฤติกรรม
+            ด้านพฤติกรรมนักเรียน
           </NavDropdown.Item>
         </NextLink>
         <NextLink href="/admin/student/health">
           <NavDropdown.Item href="/admin/student/health">
-            ด้านสุขภาพ
+            ด้านสุขภาพพลานามัย
           </NavDropdown.Item>
         </NextLink>
       </NavDropdown>
-      {/* <NavDropdown title="ข้อมูลนักเรียนตามชั้นปี">
-        {StudentClassRoomListComponent(navbar.studentClassRoomList)}
-      </NavDropdown> */}
+      <NavDropdown title="ข้อมูลสารสนเทศ/คู่มือ" id="collasible-nav-dropdown">
+        <NextLink href="/docs/a">
+          <NavDropdown.Item href="/docs/a">ข้อมูลสารสนเทศ</NavDropdown.Item>
+        </NextLink>
+        <NextLink href="/docs/b">
+          <NavDropdown.Item href="/docs/b">คู่มือการใช้งาน</NavDropdown.Item>
+        </NextLink>
+      </NavDropdown>
     </>
   ) : null;
 };
@@ -128,9 +135,7 @@ const UserLoginLeftMenuComponent = (user: UserState) => {
     <Nav>
       <Navbar.Text>
         Signed in as:{" "}
-        <NextLink href="/profile">
-          <a href="/profile">{user.user?.username}</a>
-        </NextLink>
+        {user.user?.username}
       </Navbar.Text>
       <NextLink href="/login">
         <Nav.Link
@@ -157,12 +162,14 @@ export const NavbarComponent: React.FC<NavbarComponentProps> = ({}) => {
     }
   }, [user]);
 
+  const indexPath = "/";
+
   return (
     <>
       <Navbar bg="light" expand="lg">
         <Container fluid>
-          <NextLink href="/">
-            <Navbar.Brand href="/">{APP_NAME}</Navbar.Brand>
+          <NextLink href={indexPath}>
+            <Navbar.Brand href={indexPath}>{APP_NAME}</Navbar.Brand>
           </NextLink>
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse id="responsive-navbar-nav">

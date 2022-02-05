@@ -71,7 +71,7 @@ const add: React.FC<addProps> = ({}) => {
                 room: "",
                 class_type_id: 1,
                 idcard: "",
-                name_title_id: 0,
+                name_title_id: 1,
                 gender_id: 0,
                 thai_firstname: "",
                 thai_lastname: "",

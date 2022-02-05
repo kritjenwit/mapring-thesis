@@ -1,1 +1,1 @@
-export const APP_NAME = "Mapring";
+export const APP_NAME = "ระบบจัดเก็บข้อมูลงานธุรการชั้นเรียน";

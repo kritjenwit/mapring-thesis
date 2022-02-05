@@ -21,6 +21,12 @@ export const studentsEditInfoHandler = async (req: Request, res: Response) => {
     nationality_id,
     race_id,
     religion_id,
+    classTypeV2,
+    cardType,
+    studentJoinType,
+    bloodType,
+    idcard,
+    room
   } = req.body;
 
   data = {
@@ -35,10 +41,14 @@ export const studentsEditInfoHandler = async (req: Request, res: Response) => {
     nationality_id,
     race_id,
     religion_id,
+    class_type_id_v2: classTypeV2,
+    card_type_id: cardType,
+    student_join_type_id: studentJoinType,
+    blood_type_id: bloodType,
+    idcard,
+    room
   };
 
-
-  
   sql = `CALL StudentOpreration(?, ?);`;
   params = [5, JSON.stringify(data)];
 
@@ -48,4 +58,3 @@ export const studentsEditInfoHandler = async (req: Request, res: Response) => {
   // @ts-ignore
   res.json(result[0][0][0]);
 };
-  

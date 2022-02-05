@@ -21,6 +21,15 @@ export interface ConfigState {
     subjects: any[];
     houseType: any[];
     manners: any[];
+    cardType: any[];
+    studentJoinType: any[];
+    bloodType: any[];
+    classTypeV2: any[];
+    provinces: any[];
+    amphures: any[];
+    tambol: any[];
+    parentNameTitle: any[];
+    jobs: any[];
   };
 }
 
@@ -44,6 +53,15 @@ interface PayloadConfig {
     subjects: any[];
     houseType: any[];
     manners: any[];
+    cardType: any[];
+    studentJoinType: any[];
+    bloodType: any[];
+    classTypeV2: any[];
+    provinces: any[];
+    amphures: any[];
+    tambol: any[];
+    parentNameTitle: any[];
+    jobs: any[];
   };
 }
 

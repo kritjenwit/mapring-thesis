@@ -8,8 +8,9 @@ export const meHandler = async (req: Request, res: Response) => {
   if (!jwtToken) {
     return res.status(403).json({ code: 403, message: "Not authorized" });
   }
-  const payload = verify(jwtToken, jwtSecret) as JWTPayload;
-  console.log(payload);
+  // const payload = verify(jwtToken, jwtSecret) as JWTPayload;
+  verify(jwtToken, jwtSecret) as JWTPayload;
+  // console.log(payload);
   res.send("ok");
   return;
 };

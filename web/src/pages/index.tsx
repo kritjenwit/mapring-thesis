@@ -19,7 +19,7 @@ const index: React.FC<indexProps> = ({}) => {
   return (
     <SSRProvider>
       <Layout>
-        <h1>Hello World</h1>
+        <div></div>
       </Layout>
     </SSRProvider>
   );
